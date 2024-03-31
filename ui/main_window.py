@@ -1,16 +1,19 @@
 # ui/main_window.py
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QListWidget, QListWidgetItem, QPushButton, QMenuBar, QFileDialog, QAction, QMessageBox, QShortcut, QHBoxLayout, QSizePolicy, QWidget
-from PyQt5.QtCore import QTimer, Qt, QUrl
-from PyQt5.QtGui import QKeySequence, QPalette, QColor, QIcon
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QListWidget, QListWidgetItem, QPushButton, QWidget, QFileDialog, QAction, QMessageBox, QShortcut, QHBoxLayout, QMenuBar
+from PyQt5.QtCore import QTimer, Qt, QMetaObject, QUrl, pyqtSignal
+from PyQt5.QtGui import QIcon, QPalette, QColor, QKeySequence
 from PyQt5.QtMultimedia import QSoundEffect
+import os
+import threading
+import keyboard
 from utils.config import load_config
 from utils.timer import Timer
 from utils.notes import note_time, read_notes, update_note_description
 from ui.settings_dialog import SettingsDialog
-import os
-
 
 class MainWindow(QMainWindow):
+    toggleTimerSignal = pyqtSignal()
+    createNoteSignal = pyqtSignal()
     def __init__(self):
         super().__init__()
         self.timer = Timer()
@@ -18,6 +21,11 @@ class MainWindow(QMainWindow):
         self.config = load_config()
         self.initUI()
         self.setupHotkeys()
+        self.setupSignals()
+
+    def setupSignals(self):
+        self.toggleTimerSignal.connect(self.toggleTimer)
+        self.createNoteSignal.connect(self.createNoteAndUpdateList)
 
     def initUI(self):
         # Set window size and minimum size
@@ -236,27 +244,25 @@ class MainWindow(QMainWindow):
                 print(f"Error: Could not read file '{fileName}'")
 
     def setupHotkeys(self):
-        self.startStopShortcut = QShortcut(QKeySequence(self.config['start_stop_hotkey']), self)
-        self.startStopShortcut.activated.connect(self.toggleTimer)
-        
-        self.noteShortcut = QShortcut(QKeySequence(self.config['note_hotkey']), self)
-        self.noteShortcut.activated.connect(self.createNoteAndUpdateList)
+        threading.Thread(target=lambda: keyboard.add_hotkey(self.config['start_stop_hotkey'], self.toggleTimerSignal.emit), daemon=True).start()
+        threading.Thread(target=lambda: keyboard.add_hotkey(self.config['note_hotkey'], self.createNoteSignal.emit), daemon=True).start()
         
     def updateHotkeyText(self):
         self.hotkeysInfo.setText(f"Start/Stop Hotkey: {self.config['start_stop_hotkey']} | Note Hotkey: {self.config['note_hotkey']}")        
 
     def toggleTimer(self):
-        start_time = self.timer.start_stop()
-        if start_time:  # Timer started
+        if not self.timer.start_time:
+            self.timer.start_stop()
+            self.currentSessionStart = self.timer.start_time.strftime('%Y-%m-%d_%H-%M-%S')
+            self.notesList.clear()
             if self.config['sound_effects']:
                 self.startStopSound.play()
-            self.currentSessionStart = start_time.strftime('%Y-%m-%d_%H-%M-%S')
-            self.notesList.clear()  # Clear the list for the new session
-        else:  # Timer stopped
-            if self.config['sound_effects']:
-                self.startStopSound.play()
+        else:
+            self.timer.start_stop()
             self.timerDisplay.setText('Timer: 00:00:00')
-            self.currentSessionStart = None  # Clear the session start time
+            self.currentSessionStart = None
+            if self.config['sound_effects']:
+                self.startStopSound.play()
 
     def createNoteAndUpdateList(self):
         QTimer.singleShot(0, self.createNoteAndUpdateListHelper)
