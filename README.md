@@ -52,4 +52,4 @@ If you encounter any issues or have questions about ClipNotes, please open an is
 
 ## License
 
-ClipNotes is released under the MIT License. See the [LICENSE](LICENSE) file for more information.
+ClipNotes is released under the GNU Affero General Public License v3.0. See the [LICENSE](LICENSE) file for more information.
