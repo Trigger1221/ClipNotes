@@ -8,7 +8,7 @@ ClipNotes is a **powerful tool** designed for content creators, streamers, and g
 
 - **Synchronized note-taking** with gameplay recording
 - **Customizable hotkeys** for starting/stopping the timer and capturing notes
-- Automatically saves notes with timestamps in a file named after the game title and session start time in Documents
+- Automatically saves notes with timestamps in a file named after the game title and session start time in Documents/ClipNotes
 - Ability to **review, edit, and delete notes** within the application
 - **Import functionality** to load and review previously saved note files
 - **Configurable settings** for a personalized experience
@@ -36,7 +36,7 @@ ClipNotes is a **powerful tool** designed for content creators, streamers, and g
 ClipNotes allows you to **customize** various settings to suit your preferences. Open the **Settings** dialog to:
 
 - Change the hotkeys for starting/stopping the timer and capturing notes
-- Specify the directory where note files are saved
+- Toggleable sound effects for audio confirmation
 - Toggle the option to clear the note input field after capturing a note
 
 ## Contributing
