@@ -1,8 +1,9 @@
 # ui/main_window.py
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QListWidget, QListWidgetItem, QPushButton, QWidget, QFileDialog, QAction, QMessageBox, QShortcut, QHBoxLayout, QMenuBar
-from PyQt5.QtCore import QTimer, Qt, QMetaObject, QUrl, pyqtSignal
+from PyQt5.QtCore import QTimer, Qt, QMetaObject, QUrl, pyqtSignal, QObject, pyqtSlot
 from PyQt5.QtGui import QIcon, QPalette, QColor, QKeySequence
 from PyQt5.QtMultimedia import QSoundEffect
+from concurrent.futures import ThreadPoolExecutor
 import os
 import threading
 import keyboard
@@ -11,15 +12,41 @@ from utils.timer import Timer
 from utils.notes import note_time, read_notes, update_note_description
 from ui.settings_dialog import SettingsDialog
 
+class NoteCreationWorker(QObject):
+    noteCreated = pyqtSignal()
+
+    def __init__(self, main_window, description, title):
+        super().__init__()
+        self.main_window = main_window
+        self.description = description
+        self.title = title
+
+    @pyqtSlot()
+    def createNote(self):
+        if not self.title:
+            self.title = 'Untitled'
+
+        note_time(self.main_window.timer.start_time, self.main_window.config['notes_dir'], self.title, self.description)
+        if self.main_window.config['sound_effects']:
+            self.main_window.noteSound.play()
+        self.noteCreated.emit()
+        if self.main_window.config['clear_description']:
+            self.main_window.descriptionInput.clear()
+
 class MainWindow(QMainWindow):
+
     toggleTimerSignal = pyqtSignal()
     createNoteSignal = pyqtSignal()
+    
     def __init__(self):
         super().__init__()
+        self.thread_pool = ThreadPoolExecutor()
         self.timer = Timer()
         self.currentSessionStart = None
         self.config = load_config()
+        self.note_creation_worker = None
         self.initUI()
+        self.previousHotkeys = {}
         self.setupHotkeys()
         self.setupSignals()
 
@@ -244,8 +271,19 @@ class MainWindow(QMainWindow):
                 print(f"Error: Could not read file '{fileName}'")
 
     def setupHotkeys(self):
-        threading.Thread(target=lambda: keyboard.add_hotkey(self.config['start_stop_hotkey'], self.toggleTimerSignal.emit), daemon=True).start()
-        threading.Thread(target=lambda: keyboard.add_hotkey(self.config['note_hotkey'], self.createNoteSignal.emit), daemon=True).start()
+        # Remove previous hotkey bindings
+        for hotkey in self.previousHotkeys.values():
+            keyboard.remove_hotkey(hotkey)
+
+        # Update previous hotkey bindings
+        self.previousHotkeys = {
+            'start_stop': self.config['start_stop_hotkey'],
+            'note': self.config['note_hotkey']
+        }
+
+        # Assign new hotkey bindings
+        keyboard.add_hotkey(self.config['start_stop_hotkey'], self.toggleTimerSignal.emit)
+        keyboard.add_hotkey(self.config['note_hotkey'], self.createNoteSignal.emit)
         
     def updateHotkeyText(self):
         self.hotkeysInfo.setText(f"Start/Stop Hotkey: {self.config['start_stop_hotkey']} | Note Hotkey: {self.config['note_hotkey']}")        
@@ -265,25 +303,17 @@ class MainWindow(QMainWindow):
                 self.startStopSound.play()
 
     def createNoteAndUpdateList(self):
-        QTimer.singleShot(0, self.createNoteAndUpdateListHelper)
-
-    def createNoteAndUpdateListHelper(self):
         description = self.descriptionInput.toPlainText()
         title = self.projectTitleInput.text()
 
-        if not title:
-            title = 'Untitled'
+        self.note_creation_worker = NoteCreationWorker(self, description, title)
+        self.note_creation_worker.noteCreated.connect(self.updateNotesList)
+        QTimer.singleShot(0, self.note_creation_worker.createNote)
 
-        note_time(self.timer.start_time, self.config['notes_dir'], title, description)
-        if self.config['sound_effects']:
-            self.noteSound.play()
-        self.updateNotesList()
-        if self.config['clear_description']:
-            self.descriptionInput.clear()
-            
     def updateNotesList(self):
         self.notesList.clear()
         notes = read_notes(self.config['notes_dir'])
+
         for filepath, note in notes:
             if self.currentSessionStart and self.currentSessionStart in filepath:
                 parts = note.split(' - ', maxsplit=2)
@@ -342,6 +372,7 @@ class MainWindow(QMainWindow):
 
     def openSettingsDialog(self):
         dialog = SettingsDialog(self)
+        dialog.hotkeyUpdated.connect(self.setupHotkeys)  # Connect to setupHotkeys
         if dialog.exec_():
             self.config = load_config()
             self.setupHotkeys()

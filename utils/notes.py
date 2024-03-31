@@ -35,8 +35,10 @@ def read_notes(notes_dir):
         if filename.endswith('.txt'):
             filepath = os.path.join(notes_dir, filename)
             with open(filepath, 'r') as file:
-                for line in file:
-                    notes.append((filepath, line.strip()))
+                content = file.read()
+                for line in content.split('\n'):
+                    if line.strip():
+                        notes.append((filepath, line.strip()))
     return notes
 
 def update_note_description(filepath, uid, new_description):

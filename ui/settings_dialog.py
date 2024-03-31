@@ -1,7 +1,7 @@
 # ui/settings_dialog.py
 from PyQt5.QtWidgets import QDialog, QFormLayout, QPushButton, QCheckBox, QVBoxLayout, QHBoxLayout, QLabel
 from PyQt5.QtGui import QPalette, QColor
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from utils.config import load_config, save_config
 import keyboard
 import yaml
@@ -18,6 +18,7 @@ class HotkeyCaptureButton(QPushButton):
         self.parent().update_hotkey(self.objectName(), hotkey)
 
 class SettingsDialog(QDialog):
+    hotkeyUpdated = pyqtSignal() 
     def __init__(self, parent=None):
         super(SettingsDialog, self).__init__(parent)
         self.config = load_config()
@@ -109,6 +110,9 @@ class SettingsDialog(QDialog):
         ''')
         layout.addWidget(self.soundEffectsCheckBox)
 
+        self.clearDescriptionCheckBox.stateChanged.connect(self.updateHotkeys)  # Connect to updateHotkeys
+        self.soundEffectsCheckBox.stateChanged.connect(self.updateHotkeys)  # Connect to updateHotkeys
+
         self.saveButton = QPushButton('Save', self)
         self.saveButton.clicked.connect(self.save_settings)
         self.saveButton.setStyleSheet('''
@@ -128,6 +132,9 @@ class SettingsDialog(QDialog):
 
     def update_hotkey(self, hotkey_name, hotkey_value):
         self.config[hotkey_name] = hotkey_value
+
+    def updateHotkeys(self):
+        self.hotkeyUpdated.emit()  # Emit the signal when hotkeys need to be updated
 
     def save_settings(self):
         self.config['clear_description'] = self.clearDescriptionCheckBox.isChecked()
