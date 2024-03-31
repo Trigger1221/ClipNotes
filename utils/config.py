@@ -6,7 +6,7 @@ import yaml
 default_config = {
     "start_stop_hotkey": "ctrl+shift+s",
     "note_hotkey": "ctrl+shift+n",
-    "notes_dir": "./notes",
+    "notes_dir": os.path.join(os.path.expanduser('~'), 'Documents', 'ClipNotes'),
     "clear_description": True,
     "sound_effects": True
 }
