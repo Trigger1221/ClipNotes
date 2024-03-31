@@ -6,7 +6,7 @@ ClipNotes is a **powerful tool** designed for content creators, streamers, and g
 
 - **Synchronized note-taking** with gameplay recording
 - **Customizable hotkeys** for starting/stopping the timer and capturing notes
-- Automatically saves notes with timestamps in a file named after the game title and session start time
+- Automatically saves notes with timestamps in a file named after the game title and session start time in Documents
 - Ability to **review, edit, and delete notes** within the application
 - **Import functionality** to load and review previously saved note files
 - **Configurable settings** for a personalized experience
@@ -52,4 +52,4 @@ If you encounter any issues or have questions about ClipNotes, please open an is
 
 ## License
 
-ClipNotes is released under the MIT License. See the [LICENSE](LICENSE) file for more information.
+ClipNotes is released under the GNU Affero General Public License v3.0. See the [LICENSE](LICENSE) file for more information.
