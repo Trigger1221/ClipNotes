@@ -1,7 +1,7 @@
 # ui/main_window.py
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QListWidget, QListWidgetItem, QPushButton, QMenuBar, QFileDialog, QAction, QMessageBox, QShortcut, QHBoxLayout, QSizePolicy, QWidget
 from PyQt5.QtCore import QTimer, Qt, QUrl
-from PyQt5.QtGui import QKeySequence, QPalette, QColor
+from PyQt5.QtGui import QKeySequence, QPalette, QColor, QIcon
 from PyQt5.QtMultimedia import QSoundEffect
 from utils.config import load_config
 from utils.timer import Timer
@@ -24,6 +24,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('ClipNotes')
         self.setGeometry(100, 100, 800, 600)
         self.setMinimumSize(600, 400)
+        
+        # Set window icon
+        self.setWindowIcon(QIcon('ui/clipnotes.ico'))        
 
         # Set dark theme colors
         dark_palette = QPalette()
