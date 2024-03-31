@@ -13,7 +13,7 @@ ClipNotes is a **powerful tool** designed for content creators, streamers, and g
 
 ## Installation
 
-1. Download the latest release of ClipNotes from the [releases page](#).
+1. Download the latest release of ClipNotes from the [releases page](https://github.com/Trigger1221/ClipNotes/releases).
 2. Run the installer and follow the on-screen instructions to complete the installation process.
 3. Launch ClipNotes from your desktop or start menu.
 
