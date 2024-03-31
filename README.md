@@ -2,6 +2,8 @@
 
 ClipNotes is a **powerful tool** designed for content creators, streamers, and gameplay analysts. It allows for easy capture and annotation of important moments during gaming sessions. With **seamless integration** with popular recording software like OBS, this application facilitates taking notes and marking timestamps while recording gameplay. This enhances the ability to create engaging content, analyze gameplay, or share highlights with an audience.
 
+![cnotes](https://github.com/Trigger1221/ClipNotes/assets/3137895/036c57b4-5c2e-422a-b87a-991b88ffc464)
+
 ## Features
 
 - **Synchronized note-taking** with gameplay recording
