@@ -27,7 +27,7 @@ ClipNotes is a **powerful tool** designed for content creators, streamers, and g
 4. Use the configured hotkey to start the timer and begin recording your gameplay.
 5. During the gaming session, press the note hotkey (default: `Ctrl + Shift + N`) whenever you want to mark a specific moment. Enter a brief description of the moment in the note input field.
 6. Use the configured hotkey to stop the timer and end the recording when you are done playing.
-7. Your notes will be automatically saved in a file named after the game title and the session start time, mirroring the naming convention used by your recording software.
+7. Your notes will be automatically saved in a file named after the game title and the session start time, mirroring the naming convention used by OBS defaults.
 8. To review and manage your notes, open ClipNotes and use the built-in note management features.
 9. If you want to review notes from a previous session, use the import functionality to load the corresponding note file.
 
